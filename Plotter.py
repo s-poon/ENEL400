@@ -5,7 +5,7 @@ import time
 import math
 import sys
 
-GPIO.setmode(GPIO.BOARD)
+GPIO.setmode(GPIO.BCM)
 
 motorX = StepperMotor(21, 20)
 
