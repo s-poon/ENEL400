@@ -26,9 +26,9 @@ class StepperMotor:
         GPIO.output(self.dirPin, dir)
         for _ in range(steps):
             GPIO.output(self.stepPin, 1)
-            time.sleep(2/1000)
+            time.sleep(1/1000)
             GPIO.output(self.stepPin, 0)
-            time.sleep(2/1000)
+            time.sleep(1/1000)
     
     def unhold(self):
         GPIO.output(self.stepPin, 0)

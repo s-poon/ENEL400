@@ -12,7 +12,7 @@ motorX = StepperMotor(21, 20)
 
 try:
     while True:
-        motorX.move(1, 200)
+        motorX.move(0, 20)
         print('motor is working')
 
 except KeyboardInterrupt:
