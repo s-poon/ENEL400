@@ -16,7 +16,7 @@ def sign(a):  # return the sign of number a
     if a > 0:
         return 1
     elif a < 0:
-        return -1
+        return 0
     else:
         return 0
 
