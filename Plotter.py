@@ -1,3 +1,4 @@
+
 import xdrlib
 import RPi.GPIO as GPIO
 import MotorControl
@@ -195,11 +196,11 @@ def executeFile(self):
 
 if __name__ == '__main__':
     print('Initializing Program')
-    setup()
+    setup
     print('Initialization is Complete')
     try:
-        readFile()
-        executeFile()
+        readFile
+        executeFile
 
     except KeyboardInterrupt:
         GPIO.cleanup()
