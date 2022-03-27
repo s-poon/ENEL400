@@ -9,12 +9,11 @@ class StepperMotor:
 
     def __init__(self, stepPin, dirPin):
         
-        GPIO.setmode(GPIO.BCM)
-
         self.stepPin = stepPin
         self.dirPin = dirPin
 
-
+        GPIO.setmode(GPIO.BCM)
+        
         GPIO.setup(self.stepPin, GPIO.OUT)
         GPIO.setup(self.dirPin, GPIO.OUT)
 
