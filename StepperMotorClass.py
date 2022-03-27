@@ -27,6 +27,10 @@ class StepperMotor:
             time.sleep(self.delayTime)
             GPIO.output(self.stepPin, 0)
             time.sleep(self.delayTime)
+            if dir == 0:
+                position -= 1
+            else:
+                position += 1
     
     def unhold(self):
         GPIO.output(self.stepPin, 0)
