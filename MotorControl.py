@@ -43,7 +43,7 @@ def motorStep(stepper1, step1, stepper2, step2):
     
     for i in range(1, int(totalMicroSteps) + 1):
         if ((i % microStep1) == 0):
-            stepper1.move(dir1, 1)
+            StepperMotor.stepper1.move(dir1, 1)
         
         if((i % microStep2) == 0):
             stepper2.move(dir2, 1)

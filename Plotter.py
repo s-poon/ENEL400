@@ -7,6 +7,8 @@ from zMotorClass import zMotor
 import time
 from math import pi, sin, cos, sqrt, acos, asin
 import sys
+
+
 class Test:
     # Pin declarations
     switchX  = 25
@@ -43,43 +45,43 @@ class Test:
 
     def XYposition(lines):
         # given a movement command line, return the X Y position
-        xchar_loc = lines.index('X')
-        i = xchar_loc+1
+        xCharLoc = lines.index('X')
+        i = xCharLoc + 1
         while (47 < ord(lines[i]) < 58) | (lines[i] == '.') | (lines[i] == '-'):
             i += 1
-        x_pos = float(lines[xchar_loc+1:i])
+        xPos = float(lines[xCharLoc+1 : i])
 
-        ychar_loc = lines.index('Y')
-        i = ychar_loc+1
+        yCharLoc = lines.index('Y')
+        i = yCharLoc+1
         while (47 < ord(lines[i]) < 58) | (lines[i] == '.') | (lines[i] == '-'):
             i += 1
-        y_pos = float(lines[ychar_loc+1:i])
+        yPos = float(lines[yCharLoc+1 : i])
 
-        return x_pos, y_pos
+        return xPos, yPos
 
     def IJposition(lines):
         # given a G02 or G03 movement command line, return the I J position
-        ichar_loc = lines.index('I')
-        i = ichar_loc+1
+        iCharLoc = lines.index('I')
+        i = iCharLoc + 1
         while (47 < ord(lines[i]) < 58) | (lines[i] == '.') | (lines[i] == '-'):
             i += 1
-        i_pos = float(lines[ichar_loc+1:i])
+        iPos = float(lines[iCharLoc+1 : i])
 
         jchar_loc = lines.index('J')
         i = jchar_loc+1
         while (47 < ord(lines[i]) < 58) | (lines[i] == '.') | (lines[i] == '-'):
             i += 1
-        j_pos = float(lines[jchar_loc+1:i])
+        jPos = float(lines[jchar_loc+1 : i])
 
-        return i_pos, j_pos
+        return iPos, jPos
 
-    def moveto(MX, x_pos, dx, MY, y_pos, dy):
+    def moveTo(xMotor, xPos, dx, yMotor, yPos, dy):
         # Move to (x_pos,y_pos) (in real unit)
-        stepx = int(round(x_pos/dx))-MX.position
-        stepy = int(round(y_pos/dy))-MY.position
+        stepX = int(round(xPos/dx)) - xMotor.position
+        stepY = int(round(yPos/dy)) - yMotor.position
 
-        print('Movement: Dx=', stepx, '  Dy=', stepy)
-        MotorControl.motorStep(MX, stepx, MY, stepy)
+        print('Movement: Dx=', stepX, '  Dy=', stepY)
+        MotorControl.motorStep(xMotor, stepX, yMotor, stepY)
 
         return 0
         
@@ -121,7 +123,11 @@ class Test:
             elif (lines[0:5] == 'G00 Z'):
                 self.zMotor.penUp()
 
-            elif (lines[0:3] == 'G0 ') | (lines[0:3] == 'G1 ') | (lines[0:3] == 'G00') | (lines[0:3] == 'G01'):
+            elif (    (lines[0:3] == 'G0 ') 
+                    | (lines[0:3] == 'G1 ') 
+                    | (lines[0:3] == 'G00') 
+                    | (lines[0:3] == 'G01')
+            ):
                 # linear engraving movement
                 if (lines[0:3] == 'G0 ' or lines[0:3] == 'G00'):
                     self.zMotor.penUp()
@@ -129,30 +135,41 @@ class Test:
                     self.zMotor.penDown()
 
                 if (lines.find('X') != -1 and lines.find('Y') != -1):
-                    [x_pos, y_pos] = Test.XYposition(lines)
-                    Test.moveto(self.motorX, x_pos, self.dx, self.motorY, y_pos, self.dy)
+                    [xPos, yPos] = Test.XYposition(lines)
+                    Test.moveTo(
+                                self.motorX,
+                                xPos, 
+                                self.dx, 
+                                self.motorY, 
+                                yPos, self.dy
+                    )
 
             elif (lines[0:3] == 'G02') | (lines[0:3] == 'G03'):  # circular interpolation
-                if (lines.find('X') != -1 and lines.find('Y') != -1 and lines.find('I') != -1 and lines.find('J') != -1):
+                if (lines.find('X') != -1 
+                    and lines.find('Y') != -1 
+                    and lines.find('I') != -1 
+                    and lines.find('J') != -1
+                ):
+
                     self.zMotor.penDown()
 
-                    old_x_pos = x_pos
-                    old_y_pos = y_pos
+                    oldXPos = xPos
+                    oldYPos = yPos
 
-                    [x_pos, y_pos] = Test.XYposition(lines)
-                    [i_pos, j_pos] = Test.IJposition(lines)
+                    [xPos, yPos] = Test.XYposition(lines)
+                    [iPos, jPos] = Test.IJposition(lines)
 
-                    xcenter = old_x_pos+i_pos  # center of the circle for interpolation
-                    ycenter = old_y_pos+j_pos
+                    xcenter = oldXPos + iPos  # center of the circle for interpolation
+                    ycenter = oldYPos + jPos
 
-                    Dx = x_pos-xcenter
+                    Dx = xPos - xcenter
                     # vector [Dx,Dy] points from the circle center to the new position
-                    Dy = y_pos-ycenter
+                    Dy = yPos - ycenter
 
-                    r = sqrt(i_pos**2+j_pos**2)   # radius of the circle
+                    r = sqrt(iPos**2 + jPos**2)   # radius of the circle
 
                     # pointing from center to current position
-                    e1 = [-i_pos, -j_pos]
+                    e1 = [-iPos, - jPos]
                     if (lines[0:3] == 'G02'):  # clockwise
                         # perpendicular to e1. e2 and e1 forms x-y system (clockwise)
                         e2 = [e1[1], -e1[0]]
@@ -162,9 +179,9 @@ class Test:
 
                     # [Dx,Dy]=e1*cos(theta)+e2*sin(theta), theta is the open angle
 
-                    costheta = (Dx*e1[0]+Dy*e1[1])/r**2
+                    costheta = (Dx*e1[0] + Dy*e1[1])/r**2
                     # theta is the angule spanned by the circular interpolation curve
-                    sintheta = (Dx*e2[0]+Dy*e2[1])/r**2
+                    sintheta = (Dx*e2[0] +Dy*e2[1])/r**2
 
                     # there will always be some numerical errors! Make sure abs(costheta)<=1
                     if costheta > 1:
@@ -174,18 +191,25 @@ class Test:
 
                     theta = acos(costheta)
                     if sintheta < 0:
-                        theta = 2.0*pi-theta
+                        theta = 2.0*pi - theta
 
                     # number of point for the circular interpolation
-                    no_step = int(round(r*theta/self.dx/5.0))
+                    numStep = int(round(r*theta/self.dx/5.0))
 
-                    for i in range(1, no_step+1):
-                        tmp_theta = i*theta/no_step
-                        tmp_x_pos = xcenter+e1[0] * \
-                            cos(tmp_theta)+e2[0]*sin(tmp_theta)
-                        tmp_y_pos = ycenter+e1[1] * \
-                            cos(tmp_theta)+e2[1]*sin(tmp_theta)
-                        Test.moveto(self.motorX, tmp_x_pos, self.dx, self.motorY, tmp_y_pos, self.dy)
+                    for i in range(1, numStep + 1):
+                        tmpTheta = i*theta/numStep
+                        tempXPos = xcenter + e1[0] * \
+                            cos(tmpTheta) + e2[0]*sin(tmpTheta)
+                        tmpYPos = ycenter + e1[1] * \
+                            cos(tmpTheta) + e2[1]*sin(tmpTheta)
+                        Test.moveTo(
+                            self.motorX, 
+                            tempXPos, 
+                            self.dx, 
+                            self.motorY, 
+                            tmpYPos, 
+                            self.dy
+                        )
 
 
 

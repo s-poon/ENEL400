@@ -6,6 +6,7 @@ class StepperMotor:
 
     delayTime = 1/2000
     stepsPerRev = 200
+    position = 0
 
     def __init__(self, stepPin, dirPin):
         
@@ -16,9 +17,7 @@ class StepperMotor:
         
         GPIO.setup(self.stepPin, GPIO.OUT)
         GPIO.setup(self.dirPin, GPIO.OUT)
-
-
-
+        self.position = 0
 
     def move(self, dir, steps):
         multiplier = 1
