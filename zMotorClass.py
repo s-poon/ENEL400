@@ -9,11 +9,11 @@ class zMotor:
     ms = 3
 
     def __init__(self, pins):
-        GPIO.setmode(GPIO.BCM)
+        # GPIO.setmode(GPIO.BCM)
         self.pins = pins
         
         for i in range(len(pins)):
-            GPIO.setup(i, GPIO.OUT)
+            GPIO.setup(pins[i], GPIO.OUT)
 
     def penUp(self):
         self.moveSteps(1, 32)
@@ -33,7 +33,7 @@ class zMotor:
                     )
                 else:
                     GPIO.output(
-                        self.motorPins[i],
+                        self.pins[i],
                         (self.CWStep[j] == 1<<i) and GPIO.HIGH or GPIO.LOW
                     )
                 time.sleep(self.ms*0.001)
