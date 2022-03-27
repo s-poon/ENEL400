@@ -12,8 +12,8 @@ switchX  = 25
 switchY = 24
 xStep = 20
 xDir = 21
-yStep = 26
-yDir = 19
+yStep = 16
+yDir = 12
 zMotorPins = (5, 6, 13, 19)
 
 # Variables
