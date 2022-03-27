@@ -32,12 +32,12 @@ class Test:
         GPIO.setup(self.switchY, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 
         print('Calibrating X-Axis')
-        while not GPIO.input(self.switchX):
+        while GPIO.input(self.switchX):
             self.motorX.move(1, 1)
         print('Calibrated X-Axis')
 
         print('Calibrating Y-Axis')
-        while not GPIO.input(self.switchY):
+        while GPIO.input(self.switchY):
             self.motorY.move(1, 1)
         print('Calibrated Y-Axis')
 
