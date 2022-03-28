@@ -16,11 +16,11 @@ class zMotor:
             GPIO.setup(pins[i], GPIO.OUT)
 
     def penUp(self):
-        self.moveSteps(1, 32)
+        self.moveSteps(1, 64)
         self.motorStop()
 
     def penDown(self):
-        self.moveSteps(0, 32)
+        self.moveSteps(0, 64)
         self.motorStop()
         
     def moveOnePeriod(self, dir):
@@ -43,6 +43,6 @@ class zMotor:
             self.moveOnePeriod(dir)
 
     def motorStop(self):
-        for i in range(self.pins):
-            GPIO.output(self.pins[i], GPIO.LOW)
+        for i in self.pins:
+            GPIO.output(int(i), GPIO.LOW)
 

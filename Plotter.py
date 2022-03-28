@@ -17,7 +17,7 @@ class Test:
     xDir = 21
     yStep = 16
     yDir = 12
-    zMotorPins = (5, 6, 13, 19)
+    zMotorPins = (6, 13, 19, 26)
 
     # Variables
     dx = 0.04
@@ -33,15 +33,15 @@ class Test:
         GPIO.setup(self.switchX, GPIO.IN, pull_up_down = GPIO.PUD_UP)
         GPIO.setup(self.switchY, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 
-        print('Calibrating X-Axis')
-        while GPIO.input(self.switchX):
-            self.motorX.move(1, 1)
-        print('Calibrated X-Axis')
+        # print('Calibrating X-Axis')
+        # while GPIO.input(self.switchX):
+        #     self.motorX.move(0, 1)
+        # print('Calibrated X-Axis')
 
-        print('Calibrating Y-Axis')
-        while GPIO.input(self.switchY):
-            self.motorY.move(1, 1)
-        print('Calibrated Y-Axis')
+        # print('Calibrating Y-Axis')
+        # while GPIO.input(self.switchY):
+        #     self.motorY.move(1, 1)
+        # print('Calibrated Y-Axis')
 
     def XYposition(lines):
         # given a movement command line, return the X Y position
@@ -84,6 +84,14 @@ class Test:
         MotorControl.motorStep(xMotor, stepX, yMotor, stepY)
 
         return 0
+
+    def testZ(self):
+        while True:
+            self.motorZ.penUp()
+            time.sleep(2)
+            self.motorZ.penDown()
+            time.sleep(2)
+
         
     def readFile(self):
         if len(sys.argv) > 1:
@@ -91,7 +99,7 @@ class Test:
 
     def executeFile(self):
         self.motorZ.penUp()
-        for lines in open('puppy_0001.nc', 'r'):
+        for lines in open('grid.nc', 'r'):
             print(lines)
 
             if lines == []:
@@ -104,13 +112,13 @@ class Test:
                 print('Working in mm')
             
             elif lines[0:3] == 'M05':
-                self.zMotor.penUp()
+                self.motorZ.penUp()
 
             elif lines[0:3] == 'M03':
-                self.zMotor.penDown()
+                self.motorZ.penDown()
 
             elif lines[0:3] == 'M02':
-                self.zMotor.penUp()
+                self.motorZ.penUp()
                 print('finished. shuting down')
                 break
 
@@ -118,10 +126,10 @@ class Test:
                 1
             
             elif (lines[0:5] == 'G01 Z'):
-                self.zMotor.penDown()
+                self.motorZ.penDown()
 
             elif (lines[0:5] == 'G00 Z'):
-                self.zMotor.penUp()
+                self.motorZ.penUp()
 
             elif (    (lines[0:3] == 'G0 ') 
                     | (lines[0:3] == 'G1 ') 
@@ -130,9 +138,9 @@ class Test:
             ):
                 # linear engraving movement
                 if (lines[0:3] == 'G0 ' or lines[0:3] == 'G00'):
-                    self.zMotor.penUp()
+                    self.motorZ.penUp()
                 else:
-                    self.zMotor.penDown()
+                    self.motorZ.penDown()
 
                 if (lines.find('X') != -1 and lines.find('Y') != -1):
                     [xPos, yPos] = Test.XYposition(lines)
@@ -141,7 +149,8 @@ class Test:
                                 xPos, 
                                 self.dx, 
                                 self.motorY, 
-                                yPos, self.dy
+                                yPos, 
+                                self.dy
                     )
 
             elif (lines[0:3] == 'G02') | (lines[0:3] == 'G03'):  # circular interpolation
@@ -151,7 +160,7 @@ class Test:
                     and lines.find('J') != -1
                 ):
 
-                    self.zMotor.penDown()
+                    self.motorZ.penDown()
 
                     oldXPos = xPos
                     oldYPos = yPos
@@ -223,9 +232,10 @@ if __name__ == '__main__':
         print('Initializing Program')
         thing = Test()
         thing.setup()
-        print('Initialization is Complete')
-        thing.readFile()
-        thing.executeFile()
+        # print('Initialization is Complete')
+        # thing.readFile()
+        # thing.executeFile()
+        thing.testZ()
 
     except KeyboardInterrupt:
         GPIO.cleanup()
