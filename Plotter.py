@@ -20,8 +20,8 @@ class Test:
     zMotorPins = (6, 13, 19, 26)
 
     # Variables
-    dx = 0.04
-    dy = 0.04
+    dx = 0.02
+    dy = 0.02
 
 
     def setup(self):
@@ -99,7 +99,7 @@ class Test:
 
     def executeFile(self):
         self.motorZ.penUp()
-        for lines in open('grid.nc', 'r'):
+        for lines in open('puppy_0001.nc', 'r'):
             print(lines)
 
             if lines == []:
@@ -232,9 +232,9 @@ if __name__ == '__main__':
         print('Initializing Program')
         thing = Test()
         thing.setup()
-        # print('Initialization is Complete')
-        # thing.readFile()
-        # thing.executeFile()
+        print('Initialization is Complete')
+        thing.readFile()
+        thing.executeFile()
         thing.testZ()
 
     except KeyboardInterrupt:
