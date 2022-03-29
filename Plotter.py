@@ -33,15 +33,15 @@ class Test:
         GPIO.setup(self.switchX, GPIO.IN, pull_up_down = GPIO.PUD_UP)
         GPIO.setup(self.switchY, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 
-        # print('Calibrating X-Axis')
-        # while GPIO.input(self.switchX):
-        #     self.motorX.move(0, 1)
-        # print('Calibrated X-Axis')
+        print('Calibrating X-Axis')
+        while GPIO.input(self.switchX):
+            self.motorX.move(0, 1)
+        print('Calibrated X-Axis')
 
-        # print('Calibrating Y-Axis')
-        # while GPIO.input(self.switchY):
-        #     self.motorY.move(1, 1)
-        # print('Calibrated Y-Axis')
+        print('Calibrating Y-Axis')
+        while GPIO.input(self.switchY):
+            self.motorY.move(1, 1)
+        print('Calibrated Y-Axis')
 
     def XYposition(lines):
         # given a movement command line, return the X Y position
