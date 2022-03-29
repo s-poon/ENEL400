@@ -1,4 +1,5 @@
 
+from cgi import test
 import xdrlib
 import RPi.GPIO as GPIO
 import MotorControl
@@ -17,21 +18,27 @@ class Test:
     xDir = 21
     yStep = 16
     yDir = 12
-    zMotorPins = (6, 13, 19, 26)
+    zMotor = 18
 
     # Variables
     dx = 0.02
     dy = 0.02
-
+    OFFSE_DUTY = 0.5        
+    SERVO_MIN_DUTY = 2.5+OFFSE_DUTY     
+    SERVO_MAX_DUTY = 12.5+OFFSE_DUTY 
 
     def setup(self):
         GPIO.setmode(GPIO.BCM)
 
+        
         self.motorX = StepperMotor(self.xStep, self.xDir)
         self.motorY = StepperMotor(self.yStep, self.yDir)
-        self.motorZ = zMotor(self.zMotorPins)
         GPIO.setup(self.switchX, GPIO.IN, pull_up_down = GPIO.PUD_UP)
         GPIO.setup(self.switchY, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+        GPIO.setup(self.zMotor, GPIO.OUT) 
+        GPIO.output(self.zMotor, GPIO.LOW)
+        self.p = GPIO.PWM(self.zMotor, 50)
+        self.p.start(0)
 
         print('Calibrating X-Axis')
         while GPIO.input(self.switchX):
@@ -41,7 +48,11 @@ class Test:
         print('Calibrating Y-Axis')
         while GPIO.input(self.switchY):
             self.motorY.move(1, 1)
+        self.motorY.move(0, 1000)
         print('Calibrated Y-Axis')
+
+    def map(value, fromLow,fromHigh, toLow, toHigh):
+        return (toHigh-toLow)*(value-fromLow) / (fromHigh-fromLow) + toLow
 
     def XYposition(lines):
         # given a movement command line, return the X Y position
@@ -86,20 +97,27 @@ class Test:
         return 0
 
     def testZ(self):
-        while True:
-            self.motorZ.penUp()
-            time.sleep(2)
-            self.motorZ.penDown()
-            time.sleep(2)
+        Test.penUp(self)
+        time.sleep(2)
+        Test.penDown()
+        time.sleep(2)
 
+    def penUp(self):
+        # thing = map(45,0,180,self.SERVO_MIN_DUTY,self.SERVO_MAX_DUTY)
+        self.p.ChangeDutyCycle(5) 
+        print('up')
+
+    def penDown(self):
+        self.p.ChangeDutyCycle(3) 
+        print('down')
         
     def readFile(self):
         if len(sys.argv) > 1:
             self.filename = str(sys.argv[1])
 
     def executeFile(self):
-        self.motorZ.penUp()
-        for lines in open('puppy_0001.nc', 'r'):
+        Test.penUp(self)
+        for lines in open('enel400_gcode.nc', 'r'):
             print(lines)
 
             if lines == []:
@@ -112,13 +130,13 @@ class Test:
                 print('Working in mm')
             
             elif lines[0:3] == 'M05':
-                self.motorZ.penUp()
+                Test.penUp(self)
 
             elif lines[0:3] == 'M03':
-                self.motorZ.penDown()
+                Test.penDown(self)
 
             elif lines[0:3] == 'M02':
-                self.motorZ.penUp()
+                Test.penUp(self)
                 print('finished. shuting down')
                 break
 
@@ -126,10 +144,10 @@ class Test:
                 1
             
             elif (lines[0:5] == 'G01 Z'):
-                self.motorZ.penDown()
+                Test.penDown(self)
 
             elif (lines[0:5] == 'G00 Z'):
-                self.motorZ.penUp()
+                Test.penUp(self)
 
             elif (    (lines[0:3] == 'G0 ') 
                     | (lines[0:3] == 'G1 ') 
@@ -138,9 +156,9 @@ class Test:
             ):
                 # linear engraving movement
                 if (lines[0:3] == 'G0 ' or lines[0:3] == 'G00'):
-                    self.motorZ.penUp()
+                    Test.penUp(self)
                 else:
-                    self.motorZ.penDown()
+                    Test.penDown(self)
 
                 if (lines.find('X') != -1 and lines.find('Y') != -1):
                     [xPos, yPos] = Test.XYposition(lines)
@@ -160,7 +178,7 @@ class Test:
                     and lines.find('J') != -1
                 ):
 
-                    self.motorZ.penDown()
+                    Test.penDown(self)
 
                     oldXPos = xPos
                     oldYPos = yPos
@@ -235,7 +253,12 @@ if __name__ == '__main__':
         print('Initialization is Complete')
         thing.readFile()
         thing.executeFile()
-        thing.testZ()
+        # thing.penUp()
+        # time.sleep(2)
+        # thing.penDown()
+        # time.sleep(2)
+        
+        # thing.testZ()
 
     except KeyboardInterrupt:
         GPIO.cleanup()
